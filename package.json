@@ -1,0 +1,15 @@
+{
+  "name": "skytrace-3d-flight-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "3D flight tracking web app using CesiumJS and OpenSky state vectors.",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "demo": "DEMO_MODE=true node server.mjs"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}

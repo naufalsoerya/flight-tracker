@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkyTrace 3D · Flight Tracking</title>
+    <meta
+      name="description"
+      content="3D flight tracking app built with CesiumJS and OpenSky live aircraft state vectors."
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://cesium.com" />
+    <link
+      href="https://cesium.com/downloads/cesiumjs/releases/1.139.1/Build/Cesium/Widgets/widgets.css"
+      rel="stylesheet"
+    />
+    <link href="/styles.css" rel="stylesheet" />
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.139.1/Build/Cesium/Cesium.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <header class="sidebar-header">
+          <div>
+            <p class="eyebrow">CesiumJS · OpenSky</p>
+            <h1>SkyTrace 3D</h1>
+          </div>
+          <p class="sidebar-copy">
+            Live aircraft state vectors on a 3D globe with camera-bounds filtering, flight selection,
+            and optional follow mode.
+          </p>
+          <div id="tokenBanner" class="banner banner-info" hidden>
+            Add a <code>CESIUM_ION_TOKEN</code> in <code>.env</code> to enable Cesium World Terrain and
+            OSM Buildings. The app still runs without one.
+          </div>
+        </header>
+
+        <section class="panel controls-panel">
+          <div class="panel-heading">
+            <h2>Controls</h2>
+          </div>
+
+          <label class="field-label" for="searchInput">Search callsign, ICAO24, or country</label>
+          <input id="searchInput" class="text-input" type="search" placeholder="e.g. SIA, 8a03e0, Indonesia" />
+
+          <div class="field-grid two-columns">
+            <label class="toggle-row">
+              <input id="autoRefreshToggle" type="checkbox" checked />
+              <span>Auto refresh</span>
+            </label>
+            <label class="toggle-row">
+              <input id="followSelectedToggle" type="checkbox" />
+              <span>Follow selected</span>
+            </label>
+            <label class="toggle-row">
+              <input id="showGroundedToggle" type="checkbox" />
+              <span>Show grounded</span>
+            </label>
+            <label class="toggle-row">
+              <input id="showLabelsToggle" type="checkbox" />
+              <span>Show labels</span>
+            </label>
+            <label class="toggle-row">
+              <input id="showTrailsToggle" type="checkbox" checked />
+              <span>Show trails</span>
+            </label>
+          </div>
+
+          <div class="field-grid two-columns">
+            <div>
+              <label class="field-label" for="refreshIntervalSelect">Refresh</label>
+              <select id="refreshIntervalSelect" class="select-input"></select>
+            </div>
+            <div>
+              <label class="field-label" for="fetchModeSelect">Fetch mode</label>
+              <select id="fetchModeSelect" class="select-input">
+                <option value="camera">Camera bounds</option>
+                <option value="global">Global</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button id="refreshBtn" class="button button-primary" type="button">Refresh now</button>
+            <button id="resetViewBtn" class="button" type="button">Reset view</button>
+          </div>
+        </section>
+
+        <section class="panel stats-panel">
+          <div class="panel-heading">
+            <h2>Snapshot</h2>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-label">Tracked</span>
+              <strong id="statTracked" class="stat-value">—</strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Rendered</span>
+              <strong id="statRendered" class="stat-value">—</strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Airborne</span>
+              <strong id="statAirborne" class="stat-value">—</strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Updated</span>
+              <strong id="statUpdated" class="stat-value">—</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel selected-panel">
+          <div class="panel-heading">
+            <h2>Selected flight</h2>
+            <button id="zoomSelectedBtn" class="button button-small" type="button" disabled>
+              Zoom to flight
+            </button>
+          </div>
+
+          <div id="selectedFlightEmpty" class="empty-state">
+            Click a flight on the globe or in the list to inspect it.
+          </div>
+
+          <div id="selectedFlightState" hidden>
+            <div class="selected-headline">
+              <div>
+                <strong id="selectedCallsign" class="selected-callsign">—</strong>
+                <div class="selected-subline">
+                  <span id="selectedIcao24">—</span>
+                  <span>·</span>
+                  <span id="selectedCountry">—</span>
+                </div>
+              </div>
+            </div>
+
+            <dl class="details-grid">
+              <div>
+                <dt>Altitude</dt>
+                <dd id="selectedAltitude">—</dd>
+              </div>
+              <div>
+                <dt>Speed</dt>
+                <dd id="selectedSpeed">—</dd>
+              </div>
+              <div>
+                <dt>Heading</dt>
+                <dd id="selectedHeading">—</dd>
+              </div>
+              <div>
+                <dt>Vertical rate</dt>
+                <dd id="selectedVerticalRate">—</dd>
+              </div>
+              <div>
+                <dt>Position</dt>
+                <dd id="selectedPosition">—</dd>
+              </div>
+              <div>
+                <dt>Last seen</dt>
+                <dd id="selectedLastSeen">—</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+
+        <section class="panel flights-panel">
+          <div class="panel-heading">
+            <h2>Visible flights</h2>
+            <span id="listSummary" class="panel-meta">0 visible</span>
+          </div>
+          <ul id="flightList" class="flight-list"></ul>
+        </section>
+      </aside>
+
+      <main class="viewer-panel">
+        <div id="viewer"></div>
+        <div id="statusBadge" class="hud-badge" data-tone="loading">Initializing 3D globe…</div>
+        <div id="legendBadge" class="hud-badge hud-secondary">Loading base layers…</div>
+      </main>
+    </div>
+
+    <noscript>
+      <div class="noscript-banner">This app requires JavaScript.</div>
+    </noscript>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

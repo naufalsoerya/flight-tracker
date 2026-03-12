@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "framework": null,
+  "buildCommand": null,
+  "outputDirectory": "public",
+  "functions": {
+    "api/config.js": { "runtime": "nodejs20.x" },
+    "api/health.js": { "runtime": "nodejs20.x" },
+    "api/flights.js": { "runtime": "nodejs20.x" }
+  }
+}
