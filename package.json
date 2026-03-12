@@ -10,6 +10,6 @@
     "demo": "DEMO_MODE=true node server.mjs"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": "20.x"
   }
 }
