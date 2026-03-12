@@ -4,8 +4,8 @@
   "buildCommand": null,
   "outputDirectory": "public",
   "functions": {
-    "api/config.js": { "runtime": "nodejs20.x" },
-    "api/health.js": { "runtime": "nodejs20.x" },
-    "api/flights.js": { "runtime": "nodejs20.x" }
+    "api/config.js": {},
+    "api/health.js": {},
+    "api/flights.js": {}
   }
 }
