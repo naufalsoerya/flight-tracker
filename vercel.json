@@ -4,8 +4,8 @@
   "buildCommand": null,
   "outputDirectory": "public",
   "functions": {
-    "api/config.js": {},
-    "api/health.js": {},
-    "api/flights.js": {}
+    "api/config.js": { "maxDuration": 10 },
+    "api/health.js": { "maxDuration": 10 },
+    "api/flights.js": { "maxDuration": 10 }
   }
 }
